@@ -30,6 +30,7 @@ func FollowbySupportAcount(keyword string, api *anaconda.TwitterApi, n int, ngs 
 		return err
 	}
 
+	cnt := 0
 	for i := 0; i < int(math.Min(float64(n), float64(len(c.Ids)))); i++ {
 		u, err := api.GetUsersShowById(c.Ids[i], nil)
 		if err != nil {
@@ -50,7 +51,7 @@ func FollowbySupportAcount(keyword string, api *anaconda.TwitterApi, n int, ngs 
 		}
 
 		if !u.Following && u.Description != "" && u.FollowersCount > 100 {
-
+			cnt++
 			fmt.Println("just followed!")
 			api.FollowUserId(u.Id, nil)
 
@@ -60,6 +61,8 @@ func FollowbySupportAcount(keyword string, api *anaconda.TwitterApi, n int, ngs 
 
 	}
 
+	fmt.Println("----------------------")
+	fmt.Println("result: follow " + strconv.Itoa(cnt) + "/" + strconv.Itoa(n) + " accounts")
 	return nil
 }
 
