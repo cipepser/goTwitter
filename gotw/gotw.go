@@ -1,6 +1,7 @@
 package gotw
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"net/url"
@@ -17,17 +18,23 @@ import (
 // * descriptionが空欄でない
 // * フォロワー数が100以上
 // * NWワードがdescriptionかな前に含まれている
-func FollowbySupportAcount(keyword string, api *anaconda.TwitterApi, n int, ngs []string) {
+func FollowbySupportAcount(keyword string, api *anaconda.TwitterApi, n int, ngs []string) error {
 	supportAcounts, _ := api.GetUserSearch(keyword, nil)
 
 	if len(supportAcounts) == 0 {
-		return
+		return errors.New("support account is not found.")
 	}
 
-	c, _ := api.GetFollowersUser(supportAcounts[0].Id, nil)
+	c, err := api.GetFollowersUser(supportAcounts[1].Id, nil)
+	if err != nil {
+		return err
+	}
 
 	for i := 0; i < int(math.Min(float64(n), float64(len(c.Ids)))); i++ {
-		u, _ := api.GetUsersShowById(c.Ids[i], nil)
+		u, err := api.GetUsersShowById(c.Ids[i], nil)
+		if err != nil {
+			return err
+		}
 		fmt.Print(u.Name, ": ")
 
 		flgNG := false
@@ -53,13 +60,18 @@ func FollowbySupportAcount(keyword string, api *anaconda.TwitterApi, n int, ngs 
 
 	}
 
+	return nil
 }
 
 // SearchandFollow
 // keywordで探したユーザをフォローしていなければフォローする
 // フォロー済みのユーザも出てしまうので微妙。
-func SearchandFollow(keyword string, api *anaconda.TwitterApi, v url.Values) {
-	users, _ := api.GetUserSearch(keyword, v)
+func SearchandFollow(keyword string, api *anaconda.TwitterApi, v url.Values) error {
+	users, err := api.GetUserSearch(keyword, v)
+	if err != nil {
+		return err
+	}
+
 	for _, u := range users {
 		// fmt.Println(string(u.Id) + ":" + u.Description)
 		// fmt.Println(string(u.Id) + ":" + strconv.FormatBool(u.Following))
@@ -73,14 +85,22 @@ func SearchandFollow(keyword string, api *anaconda.TwitterApi, v url.Values) {
 		if !u.Following {
 			api.FollowUserId(u.Id, nil)
 		}
-
 	}
+
+	return nil
 }
 
-func UnfollowNotEachOther(api *anaconda.TwitterApi) {
-	c, _ := api.GetFriendsIds(nil)
+func UnfollowNotEachOther(api *anaconda.TwitterApi) error {
+	c, err := api.GetFriendsIds(nil)
+	if err != nil {
+		return err
+	}
 
-	u, _ := api.GetSelf(nil)
+	u, err := api.GetSelf(nil)
+	if err != nil {
+		return err
+	}
+
 	myId := u.IdStr
 
 	for _, id := range c.Ids {
@@ -88,7 +108,10 @@ func UnfollowNotEachOther(api *anaconda.TwitterApi) {
 		v.Set("source_id", myId)
 		v.Set("target_id", strconv.FormatInt(id, 10))
 
-		r, _ := api.GetFriendshipsShow(v)
+		r, err := api.GetFriendshipsShow(v)
+		if err != nil {
+			return err
+		}
 
 		fmt.Println("-----------")
 		fmt.Println(r.Relationship.Target.Screen_name)
@@ -98,6 +121,7 @@ func UnfollowNotEachOther(api *anaconda.TwitterApi) {
 		if !r.Relationship.Target.Following {
 			api.UnfollowUserId(id)
 		}
-
 	}
+
+	return nil
 }
