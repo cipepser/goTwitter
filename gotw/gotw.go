@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"math/rand"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ChimeraCoder/anaconda"
 )
@@ -25,7 +27,10 @@ func FollowbySupportAcount(keyword string, api *anaconda.TwitterApi, n int, ngs 
 		return errors.New("support account is not found.")
 	}
 
-	c, err := api.GetFollowersUser(supportAcounts[1].Id, nil)
+	rand.Seed(time.Now().UnixNano())
+	chosenAccount := rand.Intn(len(supportAcounts))
+
+	c, err := api.GetFollowersUser(supportAcounts[chosenAccount].Id, nil)
 	if err != nil {
 		return err
 	}
