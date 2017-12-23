@@ -13,6 +13,14 @@ import (
 	"github.com/ChimeraCoder/anaconda"
 )
 
+// yaml fileからアクセストークンやシークレットを読み取るためのstruct
+type Keys struct {
+	TwitterConsumerKey       string `yaml:"TwitterConsumerKey"`
+	TwitterConsumerSecret    string `yaml:"TwitterConsumerSecret"`
+	TwitterAccessToken       string `yaml:"TwitterAccessToken"`
+	TwitterAccessTokenSecret string `yaml:"TwitterAccessTokenSecret"`
+}
+
 // FollowbySupportAcount
 // keywordで検索してでてきたユーザのフォロワーをn人チェックしてフォローする
 // チェック内容は以下。
