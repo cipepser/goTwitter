@@ -1,15 +1,50 @@
 package main
 
 import (
+	"bufio"
+	"io"
+	"log"
 	"os"
+
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/ChimeraCoder/anaconda"
 )
 
+type Keys struct {
+	TwitterConsumerKey       string `yaml:"TwitterConsumerKey"`
+	TwitterConsumerSecret    string `yaml:"TwitterConsumerSecret"`
+	TwitterAccessToken       string `yaml:"TwitterAccessToken"`
+	TwitterAccessTokenSecret string `yaml:"TwitterAccessTokenSecret"`
+}
+
 func main() {
-	anaconda.SetConsumerKey(os.Getenv("TwitterConsumerKey"))
-	anaconda.SetConsumerSecret(os.Getenv("TwitterConsumerSecret"))
-	api := anaconda.NewTwitterApi(os.Getenv("TwitterAccessToken"), os.Getenv("TwitterAccessTokenSecret"))
+	f, err := os.Open("./secret.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	k := Keys{}
+	r := bufio.NewReader(f)
+	for {
+		l, _, err := r.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+
+		err = yaml.Unmarshal(l, &k)
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+	}
+
+	anaconda.SetConsumerKey(k.TwitterConsumerKey)
+	anaconda.SetConsumerSecret(k.TwitterConsumerSecret)
+	api := anaconda.NewTwitterApi(k.TwitterAccessToken, k.TwitterAccessTokenSecret)
 
 	// フォロー
 	// api.FollowUser("cipepser")
