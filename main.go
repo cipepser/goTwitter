@@ -9,14 +9,9 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/ChimeraCoder/anaconda"
-)
 
-type Keys struct {
-	TwitterConsumerKey       string `yaml:"TwitterConsumerKey"`
-	TwitterConsumerSecret    string `yaml:"TwitterConsumerSecret"`
-	TwitterAccessToken       string `yaml:"TwitterAccessToken"`
-	TwitterAccessTokenSecret string `yaml:"TwitterAccessTokenSecret"`
-}
+	"./gotw"
+)
 
 func main() {
 	f, err := os.Open("./secret.yaml")
@@ -25,7 +20,7 @@ func main() {
 	}
 	defer f.Close()
 
-	k := Keys{}
+	k := gotw.Keys{}
 	r := bufio.NewReader(f)
 	for {
 		l, _, err := r.ReadLine()
