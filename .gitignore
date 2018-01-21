@@ -3,3 +3,4 @@ follow.go
 remove.go
 secret.yaml
 token/
+getImage.go
